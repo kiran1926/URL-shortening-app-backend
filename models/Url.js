@@ -1,6 +1,23 @@
 const mongoose = require('mongoose');
 const shortid = require('shortid');
 
+const noteSchema = new mongoose.Schema({
+
+    content: {
+        type: String,
+        required: false,
+    },
+    author: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    }
+},
+{
+  timestamps: true, 
+}
+);
+
 const urlSchema = new mongoose.Schema({
     originalUrl: {
         type: String,
@@ -14,7 +31,7 @@ const urlSchema = new mongoose.Schema({
     },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: "User",
         required: true
     },
     clicks: {
@@ -23,6 +40,10 @@ const urlSchema = new mongoose.Schema({
     },
     qrCode: {
         type: String,
+        required: false
+    },
+    note: {
+        type: noteSchema,
         required: false
     },
     createdAt: {
