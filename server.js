@@ -11,7 +11,11 @@ const app = express();
 
 
 // Routers
+const testJwtRouter = require('./controllers/test-jwt');
+const authRouter = require('./controllers/auth');
+const usersRouter = require('./controllers/users');
 
+const verifyToken = require('./middleware/verify-token');
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI);
@@ -26,7 +30,9 @@ app.use(express.json());
 app.use(logger('dev'));
 
 // Routes
-
+app.use('/auth', authRouter);
+app.use('/users', verifyToken, usersRouter);
+app.use('/test-jwt', testJwtRouter);
 
 // Start the server and listen on port 3000
 const PORT = process.env.PORT || 3000;
