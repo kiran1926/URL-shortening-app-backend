@@ -20,6 +20,15 @@ const userSchema = new mongoose.Schema({
     }
 });
 
+// to delete password from token
+
+userSchema.set('toJSON', {
+    transform: (document, returnedObject) => {
+        delete returnedObject.hashedPassword
+    }
+});
+
+
 // Hash password before saving
 userSchema.pre('save', async function(next) {
     if (!this.isModified('password')) return next();

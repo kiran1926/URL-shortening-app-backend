@@ -11,8 +11,9 @@ const app = express();
 
 
 // Routers
-const authRouter = require('./controllers/authController');
-const urlRouter = require('./controllers/urlController');
+const testJwtRouter = require('./controllers/test-jwt');
+const authRouter = require('./controllers/auth');
+const usersRouter = require('./controllers/users');
 
 const verifyToken = require('./middleware/verify-token');
 
@@ -30,7 +31,8 @@ app.use(logger('dev'));
 
 // Routes
 app.use('/auth', authRouter);
-app.use('/urls', verifyToken, urlRouter);
+app.use('/users', verifyToken, usersRouter);
+app.use('/test-jwt', testJwtRouter);
 
 // Start the server and listen on port 3000
 const PORT = process.env.PORT || 3000;
