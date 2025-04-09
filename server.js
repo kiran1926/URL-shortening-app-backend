@@ -9,12 +9,10 @@ const logger = require('morgan');
 dotenv.config();
 const app = express();
 
-
 // Routers
 const testJwtRouter = require('./controllers/test-jwt');
 const authRouter = require('./controllers/auth');
 const usersRouter = require('./controllers/users');
-
 const verifyToken = require('./middleware/verify-token');
 
 // Connect to MongoDB

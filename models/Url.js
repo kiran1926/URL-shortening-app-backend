@@ -21,8 +21,7 @@ const noteSchema = new mongoose.Schema({
 const urlSchema = new mongoose.Schema({
     originalUrl: {
         type: String,
-        required: true,
-        trim: true
+        required: true
     },
     shortUrl: {
         type: String,
@@ -31,7 +30,7 @@ const urlSchema = new mongoose.Schema({
     },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        ref: 'User',
         required: true
     },
     clicks: {
