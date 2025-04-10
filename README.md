@@ -64,9 +64,6 @@ git clone https://github.com/kiran1926/URL-shortening-app-frontend && cd URL-sho
 ## Next Steps
 
 - Add link analytics and tracking features
-- Improve UI/UX with Tailwind CSS
-- Implement authentication and authorization for users
-
 
 ## Frameworks & Libraries
 
