@@ -1,6 +1,6 @@
 # URL-shortening-app-frontend
 
-Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit.
+A full-stack web application that allows users to shorten long URLs and manage them in a personalized dashboard. Users can create, view, update, and delete shortened URLs, as well as leave comments on individual links.
 
 Check out the Application [Here](https://) 
 
