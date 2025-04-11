@@ -5,7 +5,7 @@ const Url = require('../models/url');
 const QRCode = require('qrcode');
 
 // Create short URL
-router.post('/shorten', async (req, res) => {
+router.post('/shorten', async(req, res) => {
     try {
         const { originalUrl, note } = req.body;
         const userId = req.user.id;
@@ -25,7 +25,7 @@ router.post('/shorten', async (req, res) => {
         baseUrl = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
         console.log("Using base URL for QR code:", baseUrl);
         const qrCodeImage = await QRCode.toDataURL(`${baseUrl}/${shortUrl}`);
-        
+
         // Create new URL document
         const url = new Url({
             originalUrl,
@@ -43,7 +43,7 @@ router.post('/shorten', async (req, res) => {
 });
 
 // Get all URLs for a user
-router.get('/my-urls', async (req, res) => {
+router.get('/my-urls', async(req, res) => {
     try {
         const userId = req.user.id;
         const urls = await Url.find({ userId }).sort({ createdAt: -1 });
@@ -55,11 +55,11 @@ router.get('/my-urls', async (req, res) => {
 });
 
 // Get a single URL by shortUrl
-router.get('/url/:shortUrl', async (req, res) => {
+router.get('/url/:shortUrl', async(req, res) => {
     try {
         const userId = req.user.id;
         const url = await Url.findOne({ shortUrl: req.params.shortUrl, userId });
-        
+
         if (!url) {
             return res.status(404).json({ error: 'URL not found' });
         }
@@ -72,11 +72,11 @@ router.get('/url/:shortUrl', async (req, res) => {
 });
 
 // Update a URL
-router.put('/:shortUrl', async (req, res) => {
+router.put('/:shortUrl', async(req, res) => {
     try {
         const userId = req.user.id;
         const { originalUrl, shortUrl, generateQRCode } = req.body;
-        
+
         const url = await Url.findOne({ shortUrl: req.params.shortUrl, userId });
 
         if (!url) {
@@ -92,7 +92,7 @@ router.put('/:shortUrl', async (req, res) => {
             if (existingUrl) {
                 return res.status(409).json({ error: 'Short URL already taken' });
             }
-            
+
             console.log(`Updating shortUrl from ${url.shortUrl} to ${shortUrl}`);
             url.shortUrl = shortUrl;
             updated = true;
@@ -108,7 +108,7 @@ router.put('/:shortUrl', async (req, res) => {
         // Only regenerate QR code if requested or if shortUrl/originalUrl changed
         if ((updated && (originalUrl || shortUrl)) || generateQRCode === true) {
             let baseUrl = process.env.BASE_URL || "http://localhost:3001";
-    
+
             baseUrl = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
             console.log("Using base URL for QR code update:", baseUrl);
 
@@ -142,11 +142,11 @@ router.put('/:shortUrl', async (req, res) => {
 });
 
 // Delete a URL
-router.delete('/:shortUrl', async (req, res) => {
+router.delete('/:shortUrl', async(req, res) => {
     try {
         const userId = req.user.id;
         const url = await Url.findOne({ shortUrl: req.params.shortUrl, userId });
-        
+
         if (!url) {
             return res.status(404).json({ error: 'URL not found' });
         }
@@ -160,12 +160,12 @@ router.delete('/:shortUrl', async (req, res) => {
 });
 
 // Redirect to original URL
-router.get('/:shortUrl', async (req, res) => {
+router.get('/:shortUrl', async(req, res) => {
     try {
         const { shortUrl } = req.params;
 
         const url = await Url.findOne({ shortUrl });
-        
+
         if (!url) {
             return res.status(404).json({ error: 'URL not found' });
         }
@@ -192,11 +192,11 @@ router.get('/:shortUrl', async (req, res) => {
 // Note CRUD Operations
 
 // Create/Update note for a URL
-router.post('/:shortUrl/note', async (req, res) => {
+router.post('/:shortUrl/note', async(req, res) => {
     try {
         const userId = req.user.id;
         const { content } = req.body;
-        
+
         // Find the URL by shortUrl without modifying it
         const url = await Url.findOne({ shortUrl: req.params.shortUrl, userId });
         if (!url) {
@@ -210,10 +210,7 @@ router.post('/:shortUrl/note', async (req, res) => {
         };
 
         // Update only the note field
-        await Url.updateOne(
-            { _id: url._id },
-            { $set: { note: newNote } }
-        );
+        await Url.updateOne({ _id: url._id }, { $set: { note: newNote } });
 
         // Fetch the updated URL to return
         const updatedUrl = await Url.findById(url._id);
@@ -225,11 +222,11 @@ router.post('/:shortUrl/note', async (req, res) => {
 });
 
 // Update note for a URL
-router.put('/:shortUrl/note', async (req, res) => {
+router.put('/:shortUrl/note', async(req, res) => {
     try {
         const userId = req.user.id;
         const { content } = req.body;
-        
+
         // Find the URL by shortUrl without modifying it
         const url = await Url.findOne({ shortUrl: req.params.shortUrl, userId });
         if (!url) {
@@ -241,10 +238,7 @@ router.put('/:shortUrl/note', async (req, res) => {
         }
 
         // Update only the note content
-        await Url.updateOne(
-            { _id: url._id },
-            { $set: { 'note.content': content } }
-        );
+        await Url.updateOne({ _id: url._id }, { $set: { 'note.content': content } });
 
         // Fetch the updated URL to return
         const updatedUrl = await Url.findById(url._id);
@@ -256,10 +250,10 @@ router.put('/:shortUrl/note', async (req, res) => {
 });
 
 // Delete note from a URL
-router.delete('/:shortUrl/note', async (req, res) => {
+router.delete('/:shortUrl/note', async(req, res) => {
     try {
         const userId = req.user.id;
-        
+
         // Find the URL by shortUrl without modifying it
         const url = await Url.findOne({ shortUrl: req.params.shortUrl, userId });
         if (!url) {
@@ -267,10 +261,7 @@ router.delete('/:shortUrl/note', async (req, res) => {
         }
 
         // Remove only the note field
-        await Url.updateOne(
-            { _id: url._id },
-            { $unset: { note: "" } }
-        );
+        await Url.updateOne({ _id: url._id }, { $unset: { note: "" } });
 
         res.json({ message: 'Note deleted successfully' });
     } catch (error) {
@@ -279,4 +270,4 @@ router.delete('/:shortUrl/note', async (req, res) => {
     }
 });
 
-module.exports = router; 
+module.exports = router;
