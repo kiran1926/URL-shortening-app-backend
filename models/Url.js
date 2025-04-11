@@ -53,7 +53,8 @@ const urlSchema = new mongoose.Schema({
 
 // Generate short URL before saving
 urlSchema.pre('save', async function(next) {
-    if (!this.isModified('shortUrl')) {
+    // Only generate a shortUrl if it's a new document or shortUrl is not set
+    if (this.isNew && !this.shortUrl) {
         this.shortUrl = shortid.generate();
     }
     next();

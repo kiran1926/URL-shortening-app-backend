@@ -7,7 +7,7 @@ const QRCode = require('qrcode');
 // Create short URL
 router.post('/shorten', async(req, res) => {
     try {
-        const { originalUrl, note } = req.body;
+        const { originalUrl, shortUrl: customShortUrl, note } = req.body;
         const userId = req.user.id;
 
         // Check if URL already exists for this user
@@ -16,11 +16,19 @@ router.post('/shorten', async(req, res) => {
             return res.json(existingUrl);
         }
 
-        // Generate short URL
-        const shortUrl = shortid.generate();
+        // Check if custom shortUrl is already taken
+        if (customShortUrl) {
+            const existingShortUrl = await Url.findOne({ shortUrl: customShortUrl });
+            if (existingShortUrl) {
+                return res.status(409).json({ error: 'Custom short URL is already taken' });
+            }
+        }
+
+        // Use custom shortUrl or generate one
+        const shortUrl = customShortUrl || shortid.generate();
 
         // Qrcode
-        let baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+        let baseUrl = process.env.BASE_URL || 'http://localhost:5173';
 
         baseUrl = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
         console.log("Using base URL for QR code:", baseUrl);
@@ -38,6 +46,7 @@ router.post('/shorten', async(req, res) => {
         await url.save();
         res.status(201).json(url);
     } catch (error) {
+        console.error("Error creating short URL:", error);
         res.status(500).json({ error: 'Server error' });
     }
 });
@@ -107,7 +116,7 @@ router.put('/:shortUrl', async(req, res) => {
 
         // Only regenerate QR code if requested or if shortUrl/originalUrl changed
         if ((updated && (originalUrl || shortUrl)) || generateQRCode === true) {
-            let baseUrl = process.env.BASE_URL || "http://localhost:3001";
+            let baseUrl = process.env.BASE_URL || "http://localhost:5173";
 
             baseUrl = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
             console.log("Using base URL for QR code update:", baseUrl);
@@ -155,36 +164,6 @@ router.delete('/:shortUrl', async(req, res) => {
         res.json({ message: 'URL deleted successfully' });
     } catch (error) {
         console.error("Error deleting URL:", error);
-        res.status(500).json({ error: 'Server error' });
-    }
-});
-
-// Redirect to original URL
-router.get('/:shortUrl', async(req, res) => {
-    try {
-        const { shortUrl } = req.params;
-
-        const url = await Url.findOne({ shortUrl });
-
-        if (!url) {
-            return res.status(404).json({ error: 'URL not found' });
-        }
-
-        // Increment clicks
-        url.clicks += 1;
-        await url.save();
-
-        // Redirect to original URL
-        let redirectUrl = url.originalUrl;
-        if (!redirectUrl.startsWith("http://") &&
-            !redirectUrl.startsWith("https://")
-        ) {
-            redirectUrl = "https://" + redirectUrl;
-            console.log("Added https:// protocol. New redirect URL:", redirectUrl);
-        }
-        res.redirect(redirectUrl);
-    } catch (error) {
-        console.error("Error redirecting:", error);
         res.status(500).json({ error: 'Server error' });
     }
 });
