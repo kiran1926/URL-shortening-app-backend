@@ -24,6 +24,11 @@ mongoose.connection.on('connected', () => {
   console.log(`Connected to MongoDB ${mongoose.connection.name}.`);
 });
 
+app.use(cors({
+  origin: 'https://trimlinc.netlify.app',
+  credentials: true, // if you use cookies or auth headers
+}));
+
 // CORS Configuration
 const corsOptions = {
   origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : '*',
